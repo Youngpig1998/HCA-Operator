@@ -1,0 +1,34 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: audit-webhook-config
+  annotations:
+    cert-manager.io/inject-ca-from: "default/serving-cert"
+    # cert-manager.io/inject-ca-from-secret: "default/audit-webhook-tls-secret"
+webhooks:
+- name: audit.watson.org
+  admissionReviewVersions: ["v1", "v1beta1"]
+  sideEffects: None
+  timeoutSeconds: 5
+  matchPolicy: Equivalent
+  objectSelector:
+    matchLabels:
+      cp4d-audit: "yes"
+  rules:
+  - operations: ["CREATE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+    scope: "Namespaced"
+  clientConfig:
+    service:
+      name: audit-webhook-service
+      namespace: default
+      path: "/add-sidecar"
+      port: 443
+  failurePolicy: Ignore
+
+
+
+
+
