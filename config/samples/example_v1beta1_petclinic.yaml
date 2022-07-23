@@ -1,0 +1,10 @@
+apiVersion: example.njtech.edu.cn/v1beta1
+kind: PetClinic
+metadata:
+  name: petclinic-sample
+spec:
+  replicas: 1
+  mysqlActive: true
+  scaleCrossCloud: false
+  mysql:
+    app: gateway
