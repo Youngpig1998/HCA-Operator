@@ -2,5 +2,18 @@ apiVersion: autoscale.njtech.edu.cn/v1beta1
 kind: HCAJob
 metadata:
   name: hcajob-sample
+  namespace: default
 spec:
-  # TODO(user): Add fields here
+  appLabelValues: ["customers","vets"]
+  appNamespace: "default"
+  scaleDatas:
+    minReplicas: 1
+    maxReplicas: 5
+    metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+

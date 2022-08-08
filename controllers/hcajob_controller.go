@@ -18,15 +18,21 @@ package controllers
 
 import (
 	"context"
+	"github.com/Youngpig1998/HCA-Operator/iaw-shared-helpers/pkg/bootstrap"
+	"github.com/Youngpig1998/HCA-Operator/internal/operator"
 	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/rest"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	autoscalev1beta1 "github.com/Youngpig1998/HCA-Operator/api/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
+)
 
-	autoscalev1beta1 "github.com/Youngpig1998/HCA-Operator/api/v1beta1"
+var (
+	controllerManagerName = "HCA-Operator-controller-manager"
 )
 
 // HCAJobReconciler reconciles a HCAJob object
@@ -58,9 +64,46 @@ type HCAJobReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *HCAJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	log := r.Log.WithValues("HCAJob", req.NamespacedName)
+	//log := log.FromContext(ctx)
 
-	// TODO(user): your logic here
+	log.Info("1. start reconcile logic")
+	// Instantialize the data structure
+	instance := &autoscalev1beta1.HCAJob{}
+
+	//First,query the webhook instance
+	err := r.Get(ctx, req.NamespacedName, instance)
+
+	if err != nil {
+		// If there is no instance, an empty result is returned, so that the Reconcile method will not be called immediately
+		if errors.IsNotFound(err) {
+			log.Info("Instance not found, maybe removed")
+			return reconcile.Result{}, nil
+		}
+		log.Error(err, "query action happens error")
+		// Return error message
+		return ctrl.Result{}, err
+	}
+
+	//Set the bootstrapClient's owner value as the webhook,so the resources we create then will be set reference to the webhook
+	//when the webhook cr is deleted,the resources(such as deployment.configmap,issuer...) we create will be deleted too
+	bootstrapClient, err := bootstrap.NewClient(r.Config, r.Scheme, controllerManagerName, instance)
+	if err != nil {
+		log.Error(err, "failed to initialise bootstrap client")
+		return ctrl.Result{}, err
+	}
+
+	//We create hpas to auto-scale the specified microservice Deployments
+	appNames := instance.Spec.AppNames
+	for i := 0; i < len(appNames); i++ {
+		hpaName := appNames[i]
+		hpa := operator.HorizontalPodAutoscaler(hpaName, instance)
+		err = bootstrapClient.CreateResource(hpaName, hpa)
+		if err != nil {
+			log.Error(err, "failed to create "+hpaName+"'s hpa", "Name", hpaName)
+			return ctrl.Result{}, err
+		}
+	}
 
 	return ctrl.Result{}, nil
 }

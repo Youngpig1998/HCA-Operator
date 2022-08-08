@@ -13,8 +13,9 @@ package bootstrap
 
 import (
 	"context"
+
 	//"github.com/IBM/operand-deployment-lifecycle-manager/api/v1alpha1"
-	examplev1beta1 "github.com/Youngpig1998/petClinic-operator/api/v1beta1"
+	autoscalev1beta1 "github.com/Youngpig1998/HCA-Operator/api/v1beta1"
 	//"github.ibm.com/watson-foundation-services/cp4d-audit-webhook-operator/iaw-shared-helpers/pkg/commonservices"
 	"github.com/Youngpig1998/petClinic-operator/iaw-shared-helpers/pkg/resources"
 	//appsv1 "k8s.io/api/apps/v1"
@@ -31,7 +32,7 @@ import (
 type Client struct {
 	DiscoveryClient *discovery.DiscoveryClient
 	kubeClient      client.Client
-	Owner           *examplev1beta1.PetClinic
+	Owner           *autoscalev1beta1.HCAJob
 	resourceClient  resources.Reconciler
 	context         context.Context
 	scheme          *runtime.Scheme
@@ -45,7 +46,7 @@ var (
 // NewClient creates a new bootstrap client to be used at operator install time.
 // It instantiates relevant clients to be used and sets up an owner, context, scheme
 // and install namespace to be referenced.
-func NewClient(config *rest.Config, scheme *runtime.Scheme, controllerManagerName string, owner *examplev1beta1.PetClinic) (*Client, error) {
+func NewClient(config *rest.Config, scheme *runtime.Scheme, controllerManagerName string, owner *autoscalev1beta1.HCAJob) (*Client, error) {
 	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
 	if err != nil {
 		return nil, err

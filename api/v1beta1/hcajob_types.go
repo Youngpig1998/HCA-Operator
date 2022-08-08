@@ -33,19 +33,24 @@ type HCAJobSpec struct {
 	// matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
 	// map is equivalent to an element of matchExpressions, whose key field is "key", the
 	// operator is "In", and the values array contains only "value". The requirements are ANDed.
-	MatchLabels map[string]string `json:"matchLabels" protobuf:"bytes,1,rep,name=matchLabels"`
+	//MatchLabels map[string]string `json:"matchLabels" protobuf:"bytes,1,rep,name=matchLabels"`
 
 	// updateInterval is an int32 variable. It is used to set time interval of querying the cluster
-	UpdateInterval int32 `json:"updateInterval"`
+	//UpdateInterval int32 `json:"updateInterval"`
 
 	// clusterData is a custom type.
-	ClusterData ClusterDataSpec `json:"clusterData"`
+	//ClusterData ClusterDataSpec `json:"clusterData"`
+
+	// the namespace where microservice app was deployed in cluster
+	AppNamespace string `json:"appNamespace"`
+	//the microserice Deployment lbaels' value
+	AppNames []string `json:"appNames"`
 
 	// scaleData is a custom type.
 	ScaleDatas ScaleDataSpec `json:"scaleDatas" protobuf:"bytes,4,rep,name=scaleDatas"`
 
 	// monitorData is a custom type.
-	MonitorData MonitorDataSpec `json:"monitorData" protobuf:"bytes,1,rep,name=monitorData"`
+	//MonitorData MonitorDataSpec `json:"monitorData" protobuf:"bytes,1,rep,name=monitorData"`
 }
 
 // HCAJobStatus defines the observed state of HCAJob
@@ -104,8 +109,6 @@ type ScaleDataSpec struct {
 }
 
 type MonitorDataSpec struct {
-	MicroserviceNamespace string `json:"microserviceNamespace"`
-
 	SvcLabel []string `json:"svcLabel"`
 
 	SvcPort int32 `json:"svcPort"`

@@ -35,38 +35,15 @@ spec:
           spec:
             description: HCAJobSpec defines the desired state of HCAJob
             properties:
-              clusterData:
-                description: clusterData is a custom type.
-                properties:
-                  properties:
-                    type: object
-                    x-kubernetes-preserve-unknown-fields: true
-                type: object
-              matchLabels:
-                additionalProperties:
+              appNames:
+                description: the microserice Deployment lbaels' value
+                items:
                   type: string
-                description: matchLabels is a map of {key,value} pairs. A single {key,value}
-                  in the matchLabels map is equivalent to an element of matchExpressions,
-                  whose key field is "key", the operator is "In", and the values array
-                  contains only "value". The requirements are ANDed.
-                type: object
-              monitorData:
-                description: monitorData is a custom type.
-                properties:
-                  microserviceNamespace:
-                    type: string
-                  svcLabel:
-                    items:
-                      type: string
-                    type: array
-                  svcPort:
-                    format: int32
-                    type: integer
-                required:
-                - microserviceNamespace
-                - svcLabel
-                - svcPort
-                type: object
+                type: array
+              appNamespace:
+                description: the namespace where microservice app was deployed in
+                  cluster
+                type: string
               scaleDatas:
                 description: scaleData is a custom type.
                 properties:
@@ -579,17 +556,10 @@ spec:
                 required:
                 - maxReplicas
                 type: object
-              updateInterval:
-                description: updateInterval is an int32 variable. It is used to set
-                  time interval of querying the cluster
-                format: int32
-                type: integer
             required:
-            - clusterData
-            - matchLabels
-            - monitorData
+            - appNames
+            - appNamespace
             - scaleDatas
-            - updateInterval
             type: object
           status:
             description: HCAJobStatus defines the observed state of HCAJob

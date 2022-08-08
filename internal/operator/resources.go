@@ -1,6 +1,7 @@
 package operator
 
 import (
+	"github.com/Youngpig1998/HCA-Operator/api/v1beta1"
 	examplev1beta1 "github.com/Youngpig1998/petClinic-operator/api/v1beta1"
 	"github.com/Youngpig1998/petClinic-operator/iaw-shared-helpers/pkg/resources"
 	"github.com/Youngpig1998/petClinic-operator/iaw-shared-helpers/pkg/resources/applications"
@@ -176,12 +177,12 @@ func Deployment(serviceName string, app *examplev1beta1.PetClinic) resources.Rec
 	return deployments.From(createDeployment(serviceName, app))
 }
 
-func HorizontalPodAutoscaler(horizontalPodAutoscalerName string, app *examplev1beta1.PetClinic) resources.Reconcileable {
+func HorizontalPodAutoscaler(horizontalPodAutoscalerName string, hcaJob *v1beta1.HCAJob) resources.Reconcileable {
 
 	horizontalPodAutoscaler := &autoscalingv2beta2.HorizontalPodAutoscaler{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      horizontalPodAutoscalerName,
-			Namespace: app.Namespace,
+			Namespace: hcaJob.Namespace,
 		},
 		Spec: autoscalingv2beta2.HorizontalPodAutoscalerSpec{
 			ScaleTargetRef: autoscalingv2beta2.CrossVersionObjectReference{
@@ -189,20 +190,21 @@ func HorizontalPodAutoscaler(horizontalPodAutoscalerName string, app *examplev1b
 				Name:       horizontalPodAutoscalerName,
 				APIVersion: "apps/v1",
 			},
-			MinReplicas: pointer.Int32Ptr(app.Spec.Replicas),
-			MaxReplicas: 5,
-			Metrics: []autoscalingv2beta2.MetricSpec{
-				{
-					Type: "Resource",
-					Resource: &autoscalingv2beta2.ResourceMetricSource{
-						Name: "cpu",
-						Target: autoscalingv2beta2.MetricTarget{
-							Type:               "Utilization",
-							AverageUtilization: pointer.Int32Ptr(50),
-						},
-					},
-				},
-			},
+			MinReplicas: hcaJob.Spec.ScaleDatas.MinReplicas,
+			MaxReplicas: hcaJob.Spec.ScaleDatas.MaxReplicas,
+			Metrics:     hcaJob.Spec.ScaleDatas.Metrics,
+			//Metrics: []autoscalingv2beta2.MetricSpec{
+			//	{
+			//		Type: "Resource",
+			//		Resource: &autoscalingv2beta2.ResourceMetricSource{
+			//			Name: "cpu",
+			//			Target: autoscalingv2beta2.MetricTarget{
+			//				Type:               "Utilization",
+			//				AverageUtilization: pointer.Int32Ptr(50),
+			//			},
+			//		},
+			//	},
+			//},
 		},
 	}
 
