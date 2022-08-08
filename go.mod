@@ -1,8 +1,10 @@
-module github.com/Youngpig1998/petClinic-operator
+module github.com/Youngpig1998/HCA-Operator
 
 go 1.17
 
 require (
+	github.com/Youngpig1998/petClinic-operator v0.0.0-20220530055909-a2f92ca97a34
+	github.com/coreos/prometheus-operator v0.41.1
 	github.com/go-logr/logr v1.2.0
 	github.com/oam-dev/kubevela v1.3.5
 	github.com/onsi/ginkgo v1.16.5
@@ -74,7 +76,6 @@ require (
 	google.golang.org/genproto v0.0.0-20210831024726-fe130286e0e2 // indirect
 	google.golang.org/grpc v1.40.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

@@ -18,24 +18,26 @@ package main
 
 import (
 	"flag"
+	prometheusv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
 	oamv1beta1 "github.com/oam-dev/kubevela/apis/core.oam.dev/v1beta1"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2beta2 "k8s.io/api/autoscaling/v2beta2"
 	corev1 "k8s.io/api/core/v1"
 	"os"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
-	examplev1beta1 "github.com/Youngpig1998/petClinic-operator/api/v1beta1"
-	"github.com/Youngpig1998/petClinic-operator/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
+	autoscalev1beta1 "github.com/Youngpig1998/HCA-Operator/api/v1beta1"
+	"github.com/Youngpig1998/HCA-Operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -47,15 +49,18 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
+	utilruntime.Must(autoscalev1beta1.AddToScheme(scheme))
+
 	utilruntime.Must(appsv1.AddToScheme(scheme))
 
 	utilruntime.Must(corev1.AddToScheme(scheme))
 
-	utilruntime.Must(examplev1beta1.AddToScheme(scheme))
-
 	utilruntime.Must(autoscalingv2beta2.AddToScheme(scheme))
 
 	utilruntime.Must(oamv1beta1.AddToScheme(scheme))
+
+	utilruntime.Must(prometheusv1.AddToScheme(scheme))
+
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -82,20 +87,20 @@ func main() {
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "f241c1e6.njtech.edu.cn",
+		LeaderElectionID:       "06f55d41.njtech.edu.cn",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
 
-	if err = (&controllers.PetClinicReconciler{
+	if err = (&controllers.HCAJobReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("PetClinic"),
 		Scheme: mgr.GetScheme(),
+		Log:    ctrl.Log.WithName("controllers").WithName("PetClinic"),
 		Config: mgr.GetConfig(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "PetClinic")
+		setupLog.Error(err, "unable to create controller", "controller", "HCAJob")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

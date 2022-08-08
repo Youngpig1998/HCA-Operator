@@ -12,7 +12,7 @@
 package applications
 
 import (
-	"github.com/Youngpig1998/petClinic-operator/iaw-shared-helpers/pkg/resources"
+	"github.com/Youngpig1998/HCA-Operator/iaw-shared-helpers/pkg/resources"
 	oamv1beta1 "github.com/oam-dev/kubevela/apis/core.oam.dev/v1beta1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"sigs.k8s.io/controller-runtime/pkg/client"

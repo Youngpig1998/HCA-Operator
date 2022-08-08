@@ -1,4 +1,4 @@
 ## Append samples you want in your CSV to this file as resources ##
 resources:
-- example_v1beta1_petclinic.yaml
+- autoscale_v1beta1_hcajob.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

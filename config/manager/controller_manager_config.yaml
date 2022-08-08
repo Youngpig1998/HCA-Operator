@@ -8,4 +8,4 @@ webhook:
   port: 9443
 leaderElection:
   leaderElect: true
-  resourceName: f241c1e6.njtech.edu.cn
+  resourceName: 06f55d41.njtech.edu.cn

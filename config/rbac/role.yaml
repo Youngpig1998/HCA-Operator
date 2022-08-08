@@ -6,9 +6,9 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - example.njtech.edu.cn
+  - apps
   resources:
-  - petclinics
+  - deployments
   verbs:
   - create
   - delete
@@ -18,16 +18,100 @@ rules:
   - update
   - watch
 - apiGroups:
-  - example.njtech.edu.cn
+  - apps
   resources:
-  - petclinics/finalizers
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - autoscale.njtech.edu.cn
+  resources:
+  - hcajobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - autoscale.njtech.edu.cn
+  resources:
+  - hcajobs/finalizers
   verbs:
   - update
 - apiGroups:
-  - example.njtech.edu.cn
+  - autoscale.njtech.edu.cn
   resources:
-  - petclinics/status
+  - hcajobs/status
   verbs:
   - get
   - patch
   - update
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - core.oam.dev
+  resources:
+  - applications
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch

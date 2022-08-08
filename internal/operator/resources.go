@@ -198,7 +198,7 @@ func HorizontalPodAutoscaler(horizontalPodAutoscalerName string, app *examplev1b
 						Name: "cpu",
 						Target: autoscalingv2beta2.MetricTarget{
 							Type:               "Utilization",
-							AverageUtilization: pointer.Int32Ptr(40),
+							AverageUtilization: pointer.Int32Ptr(50),
 						},
 					},
 				},
@@ -418,11 +418,11 @@ func createDeployment(serviceName string, app *examplev1beta1.PetClinic) *appsv1
 						},
 						Resources: corev1.ResourceRequirements{
 							Limits: corev1.ResourceList{
-								"cpu":    resource.MustParse("2"),
+								"cpu":    resource.MustParse("1"),
 								"memory": resource.MustParse("1024Mi"),
 							},
 							Requests: corev1.ResourceList{
-								"cpu":    resource.MustParse("1"),
+								"cpu":    resource.MustParse("0.5"),
 								"memory": resource.MustParse("512Mi"),
 							},
 						},

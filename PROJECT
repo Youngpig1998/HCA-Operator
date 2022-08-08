@@ -4,16 +4,16 @@ layout:
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
-projectName: petclinic-operator
-repo: github.com/Youngpig1998/petClinic-operator
+projectName: hca-operator
+repo: github.com/Youngpig1998/HCA-Operator
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
   domain: njtech.edu.cn
-  group: example
-  kind: PetClinic
-  path: github.com/Youngpig1998/petClinic-operator/api/v1beta1
+  group: autoscale
+  kind: HCAJob
+  path: github.com/Youngpig1998/HCA-Operator/api/v1beta1
   version: v1beta1
 version: "3"

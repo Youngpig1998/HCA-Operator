@@ -1,0 +1,6 @@
+apiVersion: autoscale.njtech.edu.cn/v1beta1
+kind: HCAJob
+metadata:
+  name: hcajob-sample
+spec:
+  # TODO(user): Add fields here

@@ -12,7 +12,7 @@
 package services
 
 import (
-	"github.com/Youngpig1998/petClinic-operator/iaw-shared-helpers/pkg/resources"
+	"github.com/Youngpig1998/HCA-Operator/iaw-shared-helpers/pkg/resources"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/util/intstr"
