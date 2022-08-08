@@ -17,6 +17,7 @@ limitations under the License.
 package v1beta1
 
 import (
+	prometheusv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
 	autoscalingv2beta2 "k8s.io/api/autoscaling/v2beta2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -43,14 +44,13 @@ type HCAJobSpec struct {
 
 	// the namespace where microservice app was deployed in cluster
 	AppNamespace string `json:"appNamespace"`
-	//the microserice Deployment lbaels' value
-	AppNames []string `json:"appNames"`
 
-	// scaleData is a custom type.
+	// scaleData is a custom type. Now, we can just auto-scale the microservice Deployment resource.
 	ScaleDatas ScaleDataSpec `json:"scaleDatas" protobuf:"bytes,4,rep,name=scaleDatas"`
 
-	// monitorData is a custom type.
-	//MonitorData MonitorDataSpec `json:"monitorData" protobuf:"bytes,1,rep,name=monitorData"`
+	//monitorData is just a wrapper of prometheusv1.ServiceMonitorSpec.
+	//The only different is that the NamespaceSelector field cannot be empty.
+	MonitorDatas MonitorDataSpec `json:"monitorDatas" protobuf:"bytes,1,rep,name=monitorDatas"`
 }
 
 // HCAJobStatus defines the observed state of HCAJob
@@ -86,6 +86,11 @@ type ClusterDataSpec struct {
 }
 
 type ScaleDataSpec struct {
+	// scaleTargetRef points to the target resource to scale, and is used to the pods for which metrics
+	// should be collected, as well as to actually change the replica count.
+	//ScaleTargetRef autoscalingv2beta2.CrossVersionObjectReference `json:"scaleTargetRef" protobuf:"bytes,1,opt,name=scaleTargetRef"`
+	//Specify the microservice Deployments we want to auto-scale
+	ScaleTargetDeploymentNames []string `json:"scaleTargetDeploymentNames"`
 	// minReplicas is the lower limit for the number of replicas to which the autoscaler
 	// can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the
 	// alpha feature gate HPAScaleToZero is enabled and at least one Object or External
@@ -106,12 +111,29 @@ type ScaleDataSpec struct {
 	// If not set, the default metric will be set to 80% average CPU utilization.
 	// +optional
 	Metrics []autoscalingv2beta2.MetricSpec `json:"metrics,omitempty" protobuf:"bytes,4,rep,name=metrics"`
+	// behavior configures the scaling behavior of the target
+	// in both Up and Down directions (scaleUp and scaleDown fields respectively).
+	// If not set, the default HPAScalingRules for scale up and scale down are used.
+	// +optional
+	Behavior *autoscalingv2beta2.HorizontalPodAutoscalerBehavior `json:"behavior,omitempty" protobuf:"bytes,5,opt,name=behavior"`
 }
 
 type MonitorDataSpec struct {
-	SvcLabel []string `json:"svcLabel"`
-
-	SvcPort int32 `json:"svcPort"`
+	// The label to use to retrieve the job name from.
+	JobLabel string `json:"jobLabel,omitempty"`
+	// TargetLabels transfers labels on the Kubernetes Service onto the target.
+	TargetLabels []string `json:"targetLabels,omitempty"`
+	// PodTargetLabels transfers labels on the Kubernetes Pod onto the target.
+	PodTargetLabels []string `json:"podTargetLabels,omitempty"`
+	// A list of endpoints allowed as part of this ServiceMonitor.
+	Endpoints []prometheusv1.Endpoint `json:"endpoints"`
+	// A list of app Services used by ServiceMonitors. The relationship is one to one,
+	//which means a Service correponds to a ServiceMonitor
+	ServiceLabels []map[string]string `json:"serviceLabels"`
+	// Selector to select which namespaces the Endpoints objects are discovered from.
+	//NamespaceSelector prometheusv1.NamespaceSelector `json:"namespaceSelector"`
+	// SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
+	SampleLimit uint64 `json:"sampleLimit,omitempty"`
 }
 
 func init() {

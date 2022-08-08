@@ -2,6 +2,7 @@ package operator
 
 import (
 	"github.com/Youngpig1998/HCA-Operator/api/v1beta1"
+	"github.com/Youngpig1998/HCA-Operator/iaw-shared-helpers/pkg/resources/servicemonitors"
 	examplev1beta1 "github.com/Youngpig1998/petClinic-operator/api/v1beta1"
 	"github.com/Youngpig1998/petClinic-operator/iaw-shared-helpers/pkg/resources"
 	"github.com/Youngpig1998/petClinic-operator/iaw-shared-helpers/pkg/resources/applications"
@@ -9,6 +10,7 @@ import (
 	"github.com/Youngpig1998/petClinic-operator/iaw-shared-helpers/pkg/resources/horizontalpodautoscalers"
 	"github.com/Youngpig1998/petClinic-operator/iaw-shared-helpers/pkg/resources/services"
 	"github.com/Youngpig1998/petClinic-operator/iaw-shared-helpers/pkg/resources/statefulsets"
+	prometheusv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/oam-dev/kubevela/apis/core.oam.dev/common"
 	oamv1beta1 "github.com/oam-dev/kubevela/apis/core.oam.dev/v1beta1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -193,22 +195,38 @@ func HorizontalPodAutoscaler(horizontalPodAutoscalerName string, hcaJob *v1beta1
 			MinReplicas: hcaJob.Spec.ScaleDatas.MinReplicas,
 			MaxReplicas: hcaJob.Spec.ScaleDatas.MaxReplicas,
 			Metrics:     hcaJob.Spec.ScaleDatas.Metrics,
-			//Metrics: []autoscalingv2beta2.MetricSpec{
-			//	{
-			//		Type: "Resource",
-			//		Resource: &autoscalingv2beta2.ResourceMetricSource{
-			//			Name: "cpu",
-			//			Target: autoscalingv2beta2.MetricTarget{
-			//				Type:               "Utilization",
-			//				AverageUtilization: pointer.Int32Ptr(50),
-			//			},
-			//		},
-			//	},
-			//},
 		},
 	}
 
 	return horizontalpodautoscalers.From(horizontalPodAutoscaler)
+}
+
+func ServiceMonitor(serviceMonitorName string, matchLabels map[string]string, hcaJob *v1beta1.HCAJob) resources.Reconcileable {
+
+	serviceMonitor := &prometheusv1.ServiceMonitor{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      serviceMonitorName,
+			Namespace: hcaJob.Namespace,
+			Labels:    matchLabels,
+		},
+		Spec: prometheusv1.ServiceMonitorSpec{
+			JobLabel:        hcaJob.Spec.MonitorDatas.JobLabel,
+			TargetLabels:    hcaJob.Spec.MonitorDatas.TargetLabels,
+			PodTargetLabels: hcaJob.Spec.MonitorDatas.PodTargetLabels,
+			Endpoints:       hcaJob.Spec.MonitorDatas.Endpoints,
+			Selector: metav1.LabelSelector{
+				MatchLabels:      matchLabels,
+				MatchExpressions: nil,
+			},
+			NamespaceSelector: prometheusv1.NamespaceSelector{
+				//Any:        false,
+				MatchNames: []string{hcaJob.Spec.AppNamespace},
+			},
+			SampleLimit: hcaJob.Spec.MonitorDatas.SampleLimit,
+		},
+	}
+
+	return servicemonitors.From(serviceMonitor)
 }
 
 func getKeys(m map[string]string) []string {

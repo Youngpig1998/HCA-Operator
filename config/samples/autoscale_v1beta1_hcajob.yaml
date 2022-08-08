@@ -4,9 +4,9 @@ metadata:
   name: hcajob-sample
   namespace: default
 spec:
-  appLabelValues: ["customers","vets"]
   appNamespace: "default"
   scaleDatas:
+    scaleTargetDeploymentNames: ["customers","vets"]
     minReplicas: 1
     maxReplicas: 5
     metrics:
@@ -16,4 +16,13 @@ spec:
         target:
           type: Utilization
           averageUtilization: 80
+  monitorDatas:
+    endpoints:
+      - port: http
+        path: /actuator/prometheus
+        scheme: http
+    serviceLabels:
+      - svc: customers
+      - svc: vets
+
 

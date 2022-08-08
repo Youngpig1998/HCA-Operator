@@ -93,14 +93,31 @@ func (r *HCAJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, err
 	}
 
+	//We create servicemonitors to monitor the specified microservice Services
+	//serviceMonitorName := deploymentNames[i] + "-hpa"
+	serviceLabels := instance.Spec.MonitorDatas.ServiceLabels
+	for i := 0; i < len(serviceLabels); i++ {
+		var serviceMonitorName string
+		for _, value := range serviceLabels[i] {
+			serviceMonitorName += value
+		}
+		serviceMonitorName += "-svcmonitor"
+		serviceMonitor := operator.ServiceMonitor(serviceMonitorName, serviceLabels[i], instance)
+		err = bootstrapClient.CreateResource(serviceMonitorName, serviceMonitor)
+		if err != nil {
+			log.Error(err, "failed to create "+serviceMonitorName, "Name", serviceMonitorName)
+			return ctrl.Result{}, err
+		}
+	}
+
 	//We create hpas to auto-scale the specified microservice Deployments
-	appNames := instance.Spec.AppNames
-	for i := 0; i < len(appNames); i++ {
-		hpaName := appNames[i]
+	deploymentNames := instance.Spec.ScaleDatas.ScaleTargetDeploymentNames
+	for i := 0; i < len(deploymentNames); i++ {
+		hpaName := deploymentNames[i] + "-hpa"
 		hpa := operator.HorizontalPodAutoscaler(hpaName, instance)
 		err = bootstrapClient.CreateResource(hpaName, hpa)
 		if err != nil {
-			log.Error(err, "failed to create "+hpaName+"'s hpa", "Name", hpaName)
+			log.Error(err, "failed to create "+hpaName, "Name", hpaName)
 			return ctrl.Result{}, err
 		}
 	}
